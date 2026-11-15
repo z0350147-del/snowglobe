@@ -461,6 +461,16 @@ Item {
     // ---- snow_patch24: вибір машини для прибирання ----
     property var veh: tractor
 
+    function anyVehicleRunning() {
+        return tractor.visible || truckV.visible || sleighV.visible;
+    }
+
+    function startSweep(amount) {
+        if (anyVehicleRunning()) return;
+        pickVehicle();
+        veh.start(amount);
+    }
+
     function pickVehicle() {
         if (veh && veh.visible) return;
         var v = SnowConfig.vehicle;
@@ -603,16 +613,14 @@ Item {
         }
         if (pileOn && !pile.sweeping && pile.avg > 0.3) {
             pile.sweeping = true;
-            pickVehicle();
-            veh.start(pile.avg);
+            startSweep(pile.avg);
         }
     }
 
     function callTractor() {
         if (!pileOn || pile.sweeping) return;
         pile.sweeping = true;
-        pickVehicle();
-        veh.start(Math.max(pile.avg, 6));
+        startSweep(Math.max(pile.avg, 6));
     }
 
     Connections {
@@ -797,7 +805,7 @@ Item {
         cap: SnowConfig.bottomMax
         growSeconds: SnowConfig.growSeconds
         sweepX: root.veh.bladeX - root.veh.heapW * 0.6
-        onOverflowed: { root.pickVehicle(); root.veh.start(pile.avg); }
+        onOverflowed: root.startSweep(pile.avg)
     }
 
     Tractor {
