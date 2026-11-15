@@ -1,6 +1,7 @@
 singleton SnowConfig 1.0 SnowConfig.qml
 SnowOverlay 1.0 SnowOverlay.qml
 SnowLayer 1.0 SnowLayer.qml
+SnowMenu 1.0 SnowMenu.qml
 WindowSnow 1.0 WindowSnow.qml
 ShedBurst 1.0 ShedBurst.qml
 BottomPile 1.0 BottomPile.qml
