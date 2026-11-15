@@ -1,0 +1,15 @@
+singleton SnowConfig 1.0 SnowConfig.qml
+SnowOverlay 1.0 SnowOverlay.qml
+SnowLayer 1.0 SnowLayer.qml
+SnowMenu 1.0 SnowMenu.qml
+WindowSnow 1.0 WindowSnow.qml
+ShedBurst 1.0 ShedBurst.qml
+BottomPile 1.0 BottomPile.qml
+Tractor 1.0 Tractor.qml
+Truck 1.0 Truck.qml
+Sleigh 1.0 Sleigh.qml
+Ball 1.0 Ball.qml
+Snowman 1.0 Snowman.qml
+CfgWriter 1.0 CfgWriter.qml
+SnowSettings 1.0 SnowSettings.qml
+singleton SnowTypes 1.0 SnowTypes.qml

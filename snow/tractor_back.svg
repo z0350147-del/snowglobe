@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 150" width="240" height="150">
+  <defs>
+    <linearGradient id="red" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f26356"/>
+      <stop offset="0.55" stop-color="#d9433a"/>
+      <stop offset="1" stop-color="#a92b25"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e6f5ff"/>
+      <stop offset="1" stop-color="#8dc2ea"/>
+    </linearGradient>
+    <radialGradient id="beacon" cx="0.4" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#fff2b8"/>
+      <stop offset="0.5" stop-color="#ffb300"/>
+      <stop offset="1" stop-color="#c26a00"/>
+    </radialGradient>
+    <radialGradient id="lamp" cx="0.4" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.6" stop-color="#ffeaa0"/>
+      <stop offset="1" stop-color="#e0b840"/>
+    </radialGradient>
+  </defs>
+
+  <circle cx="96" cy="12" r="5" fill="#cfd6de" opacity="0.55"/>
+  <circle cx="90" cy="5" r="4" fill="#cfd6de" opacity="0.35"/>
+  <rect x="96" y="28" width="7" height="42" rx="2" fill="#4a4f57"/>
+  <rect x="94" y="23" width="11" height="8" rx="3" fill="#2d3238"/>
+
+  <path d="M36,112 Q30,112 30,106 L30,82 Q30,74 38,72 L112,64 Q122,63 122,72 L122,112 Z"
+        fill="url(#red)" stroke="#7d1f1a" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M42,76 L112,68" stroke="#ff9f95" stroke-width="3" stroke-linecap="round" opacity="0.55"/>
+  <g stroke="#8c2620" stroke-width="2" stroke-linecap="round">
+    <path d="M64,76 L64,90"/><path d="M72,75 L72,89"/><path d="M80,74 L80,88"/><path d="M88,73 L88,87"/>
+  </g>
+  <path d="M30,102 L122,102" stroke="#f2b705" stroke-width="3.5"/>
+
+  <rect x="26" y="84" width="8" height="22" rx="2.5" fill="#2b2f35"/>
+  <g stroke="#5c636d" stroke-width="1.5"><path d="M28,89 L32,89"/><path d="M28,94 L32,94"/><path d="M28,99 L32,99"/></g>
+  <circle cx="33" cy="78" r="7" fill="#6e747d"/>
+  <circle cx="33" cy="78" r="5.2" fill="url(#lamp)"/>
+  <circle cx="31.3" cy="76.3" r="1.6" fill="#ffffff"/>
+
+  <path d="M116,66 L116,26 Q116,16 126,16 L202,16 Q211,16 212,25 L215,66 Z"
+        fill="url(#red)" stroke="#7d1f1a" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M124,26 L198,26 Q204,26 205,32 L207,54 L124,54 Z"
+        fill="url(#glass)" stroke="#2f343b" stroke-width="2.5" stroke-linejoin="round"/>
+  <rect x="178" y="42" width="22" height="12" rx="4" fill="#3b4a63" opacity="0.9"/>
+  <circle cx="188" cy="36" r="6" fill="#f0c9a0"/>
+  <path d="M181.5,34 Q188,24 194.5,34 Z" fill="#2f6fb5"/>
+  <rect x="181" y="33" width="14" height="3" rx="1.5" fill="#ffffff"/>
+  <circle cx="188" cy="26.5" r="2.4" fill="#ffffff"/>
+  <ellipse cx="146" cy="46" rx="7" ry="2.6" fill="none" stroke="#2f343b" stroke-width="2" transform="rotate(-25 146 46)"/>
+  <path d="M146,47 L156,54" stroke="#2f343b" stroke-width="2"/>
+  <path d="M130,27 L148,27 L136,53 L125,53 Z" fill="#ffffff" opacity="0.38"/>
+  <path d="M152,27 L158,27 L146,53 L140,53 Z" fill="#ffffff" opacity="0.22"/>
+  <path d="M160,26 L160,54" stroke="#2f343b" stroke-width="2"/>
+  <rect x="108" y="30" width="6" height="14" rx="2" fill="#2f343b"/>
+
+  <rect x="108" y="10" width="112" height="10" rx="5" fill="#8f2a24" stroke="#5e1814" stroke-width="1.5"/>
+  <rect x="112" y="12" width="104" height="2.5" rx="1.2" fill="#c35349" opacity="0.7"/>
+  <rect x="156" y="6" width="20" height="5" rx="1.5" fill="#2d3238"/>
+  <path d="M158,7 C158,-1 174,-1 174,7 Z" fill="url(#beacon)" stroke="#8a4a00" stroke-width="1"/>
+
+  <rect x="212" y="112" width="12" height="7" rx="2" fill="#4a4f57"/>
+</svg>
