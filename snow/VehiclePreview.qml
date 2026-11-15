@@ -20,6 +20,7 @@ PanelWindow {
     property var sources: ["Truck.qml", "Sleigh.qml"]
     property var names: ["Truck", "Sleigh"]
     property int idx: -1
+    property bool lite: false
 
     function next() {
         idx = (idx + 1) % sources.length;
@@ -51,7 +52,7 @@ PanelWindow {
             onLoaded: {
                 var it = ld.item;
                 it.layerWidth = scene.width > 0 ? scene.width : 1920;
-                it.lite = false;
+                it.lite = win.lite;
                 it.y = scene.height - 28 - it.height;
                 it.z = 3;
                 it.finished.connect(function () { gap.restart(); });
@@ -64,7 +65,16 @@ PanelWindow {
             y: 8
             color: "#9fb3c8"
             font.pixelSize: 13
-            text: win.idx >= 0 ? win.names[win.idx] : "..."
+            text: (win.idx >= 0 ? win.names[win.idx] : "...") + (win.lite ? "  [lite]" : "") + "   (клік: lite on/off)"
+                + (ld.item ? "   " + Math.round(ld.item.width) + "x" + Math.round(ld.item.height) + "  y=" + Math.round(ld.item.y) : "")
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                win.lite = !win.lite;
+                if (ld.item) ld.item.lite = win.lite;
+            }
         }
     }
 }

@@ -22,6 +22,9 @@ Item {
     property real lastT: 0
     property real dvx: 0
     property real dvy: 0
+    property real rollDecel: 500
+    property real rollDrag: 0.35
+    property real magnet: 1500
 
     signal splat(real gx, real gy, real dia)
 
@@ -30,6 +33,8 @@ Item {
     width: d
     height: d
     z: 6
+    opacity: SnowConfig.snowOpacity
+    layer.enabled: SnowConfig.snowOpacity < 0.99
 
     Behavior on d { NumberAnimation { duration: 90 } }
 
@@ -132,85 +137,124 @@ Item {
             ball.lastT = t;
             if (dt <= 0) return;
 
+            var n = ball.resting ? 1 : 3;
+            var h = dt / n;
             var r = ball.d / 2;
-            var pb = ball.cy + r;
+            var m = r * r;
             var surf = false;
             var onBall = false;
+            var supNx = 0;
+            var supO = null;
+            var supMag = false;
 
-            if (!ball.resting) {
-                ball.vy += 1100 * dt;
-                ball.cx += ball.vx * dt;
-                ball.cy += ball.vy * dt;
-                ball.rot += ball.vx * dt / Math.max(4, r) * 57.2958;
-            }
+            for (var step = 0; step < n; step++) {
+                surf = false;
+                onBall = false;
+                supNx = 0;
+                supO = null;
+                supMag = false;
+                var pb = ball.cy + r;
 
-            var sy = L ? L.surfaceY(ball.cx, pb - 1 - ball.d - 30) : 1e9;
-            var bottom = ball.cy + r;
-            if (bottom >= sy - 0.5 && (ball.resting || ball.vy >= 0)) {
-                ball.cy = sy - r;
-                if (!ball.resting && ball.vy > 260 && ball.bounces < 2) {
-                    ball.vy = -ball.vy * 0.3;
-                    ball.vx *= 0.75;
-                    ball.bounces += 1;
-                } else {
-                    ball.vy = 0;
-                    surf = true;
+                if (!ball.resting) {
+                    ball.vy += 1100 * h;
+                    ball.cx += ball.vx * h;
+                    ball.cy += ball.vy * h;
+                    ball.rot += ball.vx * h / Math.max(4, r) * 57.2958;
                 }
-            }
 
-            if (L) {
-                var bs = L.balls;
-                for (var i = 0; i < bs.length; i++) {
-                    var o = bs[i];
-                    if (!o || o === ball || o.held) continue;
-                    var dx = ball.cx - o.cx;
-                    var dy = ball.cy - o.cy;
-                    var md = r + o.d / 2;
-                    var dist2 = dx * dx + dy * dy;
-                    if (dist2 < 0.0001 || dist2 >= (md + 1.5) * (md + 1.5)) continue;
-                    var dist = Math.sqrt(dist2);
-                    var nx = dx / dist;
-                    var ny = dy / dist;
-                    var pen = md - dist;
-                    if (pen > 0) {
-                        var w = o.resting ? 1 : 0.5;
-                        ball.cx += nx * pen * w;
-                        ball.cy += ny * pen * w;
-                        if (!o.resting) {
-                            o.cx -= nx * pen * 0.5;
-                            o.cy -= ny * pen * 0.5;
+                var sy = L ? L.surfaceY(ball.cx, pb - 1 - ball.d - 30) : 1e9;
+                if (ball.cy + r >= sy - 0.5 && (ball.resting || ball.vy >= 0)) {
+                    ball.cy = sy - r;
+                    if (!ball.resting && ball.vy > 260 && ball.bounces < 2) {
+                        ball.vy = -ball.vy * 0.3;
+                        ball.vx *= 0.75;
+                        ball.bounces += 1;
+                    } else {
+                        ball.vy = 0;
+                        surf = true;
+                    }
+                }
+
+                if (surf && !ball.resting) {
+                    var dec = ball.rollDecel * h;
+                    if (ball.vx > 0) ball.vx = Math.max(0, ball.vx - dec);
+                    else ball.vx = Math.min(0, ball.vx + dec);
+                    ball.vx *= Math.pow(ball.rollDrag, h);
+                    if (Math.abs(ball.vx) < 6) ball.vx = 0;
+                }
+
+                if (L) {
+                    var bs = L.balls;
+                    for (var i = 0; i < bs.length; i++) {
+                        var o = bs[i];
+                        if (!o || o === ball || o.held) continue;
+                        var dx = ball.cx - o.cx;
+                        var dy = ball.cy - o.cy;
+                        var orr = o.d / 2;
+                        var md = r + orr;
+                        var dist2 = dx * dx + dy * dy;
+                        if (dist2 < 0.0001 || dist2 >= (md + 1.5) * (md + 1.5)) continue;
+                        var dist = Math.sqrt(dist2);
+                        var nx = dx / dist;
+                        var ny = dy / dist;
+                        var pen = md - dist;
+                        var om = orr * orr;
+                        var fixedO = o.resting;
+                        var wS = fixedO ? 1 : om / (m + om);
+                        var wO = fixedO ? 0 : m / (m + om);
+
+                        if (pen > 0) {
+                            ball.cx += nx * pen * wS;
+                            ball.cy += ny * pen * wS;
+                            if (!fixedO) {
+                                o.cx -= nx * pen * wO;
+                                o.cy -= ny * pen * wO;
+                            }
                         }
+
                         var vn = (ball.vx - o.vx) * nx + (ball.vy - o.vy) * ny;
                         if (vn < 0) {
-                            var j = -1.15 * vn / (o.resting ? 1 : 2);
-                            ball.vx += j * nx;
-                            ball.vy += j * ny;
-                            if (!o.resting) {
-                                o.vx -= j * nx;
-                                o.vy -= j * ny;
+                            var e = (-vn > 140) ? 0.15 : 0;
+                            var iS = 1 / m;
+                            var iO = fixedO ? 0 : 1 / om;
+                            var jj = -(1 + e) * vn / (iS + iO);
+                            ball.vx += jj * iS * nx;
+                            ball.vy += jj * iS * ny;
+                            if (!fixedO) {
+                                o.vx -= jj * iO * nx;
+                                o.vy -= jj * iO * ny;
                             } else if (-vn > 140) {
                                 o.resting = false;
                             }
                         }
-                    }
-                    if (ny < -0.9) onBall = true;
-                    else if (ny < -0.3) {
-                        ball.vx *= 0.995;
-                        if (ball.resting) ball.resting = false;
+
+                        if (ny < -0.8) {
+                            onBall = true;
+                            supNx = nx;
+                            supO = o;
+                            if (ball.resting && Math.abs(nx) > 0.15) ball.resting = false;
+                            if (!ball.resting && ball.d <= o.d + 1 && Math.abs(nx) < 0.45) {
+                                supMag = true;
+                                var zeta = 1.8 * Math.sqrt(ball.magnet / md);
+                                ball.vx += (-nx * ball.magnet - ball.vx * zeta) * h;
+                            }
+                        } else if (ny < -0.3) {
+                            if (ball.resting) ball.resting = false;
+                        }
                     }
                 }
             }
 
-            if (surf) {
-                ball.vx *= Math.pow(0.03, dt);
-                if (Math.abs(ball.vx) < 6) ball.vx = 0;
-            }
-
             if (ball.resting) {
                 if (!surf && !onBall) ball.resting = false;
-            } else if ((surf || onBall) && Math.abs(ball.vx) < 8 && Math.abs(ball.vy) < 40) {
+            } else if ((surf || onBall) && Math.abs(ball.vx) < 8 && Math.abs(ball.vy) < 40
+                       && (surf || Math.abs(supNx) < (supMag ? 0.04 : 0.12))) {
                 ball.vx = 0;
                 ball.vy = 0;
+                if (!surf && supO && supMag) {
+                    ball.cx = supO.cx;
+                    ball.cy = supO.cy - (r + supO.d / 2);
+                }
                 ball.resting = true;
                 if (surf && !ball.fed && L) {
                     ball.fed = true;

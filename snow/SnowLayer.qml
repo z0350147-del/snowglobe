@@ -293,7 +293,7 @@ Item {
 
     // ---- snow_patch17: трактор зносить або об'їжджає ----
     property var tractorHandled: []
-    readonly property int tractorSafeTier: 2
+    readonly property int tractorSafeTier: 3
 
     function checkTractor() {
         if (!veh.visible) return;
@@ -475,7 +475,7 @@ Item {
         if (veh && veh.visible) return;
         var v = SnowConfig.vehicle;
         if (v === undefined) v = 3;
-        if (v === 3) v = 1 + Math.floor(Math.random() * 2);
+        if (v !== 1 && v !== 2) v = 1 + Math.floor(Math.random() * 2);
         veh = (v === 1) ? truckV : ((v === 2) ? sleighV : tractor);
     }
 
@@ -706,6 +706,7 @@ Item {
         source: Qt.resolvedUrl("flake.png")
         color: "white"
         alpha: 0
+        opacity: SnowConfig.snowOpacity
     }
 
     Gravity {
@@ -801,6 +802,7 @@ Item {
         width: root.width
         y: root.groundY - height
         active: root.pileOn && !root.suspended
+        opacity: SnowConfig.snowOpacity
         density: root.density
         cap: SnowConfig.bottomMax
         growSeconds: SnowConfig.growSeconds
@@ -811,6 +813,7 @@ Item {
     Tractor {
         id: tractor
         z: 3
+        opacity: SnowConfig.vehicleOpacity
         y: root.groundY - height
         layerWidth: root.width
         onFinished: pile.reset()
@@ -819,6 +822,9 @@ Item {
     Truck {
         id: truckV
         z: 3
+        opacity: SnowConfig.vehicleOpacity
+        sc: SnowConfig.vehicleScale
+        speed: 220
         y: root.groundY - height
         layerWidth: root.width
         onFinished: pile.reset()
@@ -827,6 +833,7 @@ Item {
     Sleigh {
         id: sleighV
         z: 3
+        opacity: SnowConfig.vehicleOpacity
         y: root.groundY - height
         layerWidth: root.width
         onFinished: pile.reset()
@@ -836,5 +843,6 @@ Item {
         id: windowLayer
         anchors.fill: parent
         z: 1
+        opacity: SnowConfig.snowOpacity
     }
 }

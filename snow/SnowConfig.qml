@@ -35,6 +35,99 @@ Singleton {
     readonly property bool gameMode: adapter.gameMode
     readonly property bool saveMode: adapter.saveMode
     readonly property bool dance: adapter.dance
+    readonly property bool interactive: adapter.interactive
+    readonly property real vehicleOpacity: adapter.vehicleOpacity
+    readonly property real vehicleScale: adapter.vehicleScale
+    readonly property real snowOpacity: adapter.snowOpacity
+    readonly property var palette: ["#7fb4d6", "#8ad4b0", "#e08a9a", "#e0b86a", "#a58be0", "#d0d6dc"]
+    readonly property int accentIdx: adapter.accentIdx
+    readonly property string lang: adapter.lang
+    property real uiReveal: 1
+    readonly property bool isUk: lang === "uk" || (lang === "auto" && Qt.locale().name.indexOf("uk") === 0)
+
+    function tr(k) {
+        var d = isUk ? uk : en;
+        if (d[k] !== undefined) return d[k];
+        return en[k] !== undefined ? en[k] : k;
+    }
+
+    readonly property var en: ({
+        sub: "snow, snowmen and a Christmas truck",
+        clear: "Clear snow", send: "Send vehicle",
+        tabSettings: "Settings", tabCollection: "Collection",
+        level: "Snow level", lvl0: "Off", lvl1: "Light", lvl2: "Steady", lvl3: "Heavy", lvl4: "Variable",
+        snowOpacity: "Snow opacity",
+        presets: "Presets", pCozy: "Cozy", pStorm: "Blizzard", pMin: "Minimal",
+        transport: "Vehicle", vTruck: "Truck", vSleigh: "Sleigh", vRandom: "Random",
+        vehOpacity: "Vehicle opacity", truckSize: "Truck size",
+        theme: "Theme color", language: "Language",
+        modes: "Modes",
+        interactive: "Interactive zones", interactiveHint: "snowballs, snowmen, mouse sweeping",
+        dance: "Dance to music", danceHint: "snowmen dance when music plays",
+        game: "Game mode", gameHint: "hide snow in games and fullscreen windows",
+        advanced: "Advanced",
+        wind: "Wind", windDir: "Direction and strength", gusts: "Wind gusts", gustsHint: "wind strength sways on its own",
+        accum: "Accumulation", accumOn: "Snow buildup", accumHint: "master switch for snow piles",
+        bottom: "Snow at screen bottom", onWin: "Snow on windows",
+        growTime: "Pile growth time", secUnit: " s", maxWin: "Max snow on windows", maxBottom: "Max bottom pile",
+        snowmen: "Snowmen", build: "Build snowmen", buildHint: "put a smaller ball on a bigger one",
+        announce: "Announce rare ones", announceHint: "banner and confetti on appearance",
+        balls: "Snowballs and sweeping", ballGrow: "Ball growth speed", ballMax: "Max ball size", brush: "Sweep width",
+        react: "Snowmen vs. vehicle", r0: "Sweeps all", r1: "Rare hop", r2: "All hop",
+        reactHint: "What happens to snowmen and balls when the vehicle drives by. Common ones crumble; in 'Rare hop' mode rare ones and above jump over the blade.",
+        perf: "Performance", save: "Power saver", saveHint: "fewer flakes and effects, slower updates",
+        actions: "Actions", melt: "Melt snowmen", pop: "Pop snowballs",
+        reset: "Reset", resetBtn: "Reset settings", resetSure: "Sure? Click again",
+        resetHint: "Restores defaults. Your snowman collection is kept.",
+        how: "How to use",
+        h1: "• Hover over a snow cap on a window to sweep it away.",
+        h2: "• Right-click on snow (window or screen bottom) to make a snowball. Hold to grow it.",
+        h3: "• Put a smaller ball on a bigger one to get a snowman. Which one? Luck decides.",
+        h4: "• Drag a snowman anywhere with the left button.",
+        collection: "Snowman collection", collHint: "Click an unlocked card to summon that snowman.",
+        found: "found", notFound: "not found yet",
+        tier0: "Common", tier1: "Uncommon", tier2: "Rare", tier3: "Epic", tier4: "Legendary", tier5: "Mythic",
+        sm_classic: "Classic", sm_cozy: "Cozy", sm_gent: "Gentleman", sm_pirate: "Pirate", sm_ninja: "Ninja",
+        sm_cowboy: "Cowboy", sm_king: "King", sm_santa: "Santa", sm_astro: "Astronaut", sm_frost: "Frost Spirit"
+    })
+
+    readonly property var uk: ({
+        sub: "сніг, сніговики й різдвяна фура",
+        clear: "Прибрати сніг", send: "Виїзд техніки",
+        tabSettings: "Налаштування", tabCollection: "Колекція",
+        level: "Рівень снігу", lvl0: "Вимк.", lvl1: "Легкий", lvl2: "Помірний", lvl3: "Сильний", lvl4: "Змінний",
+        snowOpacity: "Прозорість снігу",
+        presets: "Пресети", pCozy: "Затишний", pStorm: "Завірюха", pMin: "Мінімум",
+        transport: "Транспорт", vTruck: "Вантажівка", vSleigh: "Сани", vRandom: "Випадково",
+        vehOpacity: "Прозорість техніки", truckSize: "Розмір вантажівки",
+        theme: "Колір теми", language: "Мова",
+        modes: "Режими",
+        interactive: "Інтерактивні зони", interactiveHint: "кульки, сніговики, змітання мишею",
+        dance: "Танці під музику", danceHint: "сніговики танцюють, коли грає музика",
+        game: "Режим ігор", gameHint: "ховати сніг, коли гра або вікно на весь екран",
+        advanced: "Додатково",
+        wind: "Вітер", windDir: "Напрямок і сила", gusts: "Пориви вітру", gustsHint: "сила вітру хитається сама",
+        accum: "Накопичення", accumOn: "Накопичення снігу", accumHint: "головний вимикач сугробів",
+        bottom: "Сніг унизу екрана", onWin: "Сніг на вікнах",
+        growTime: "Час росту сугробу", secUnit: " с", maxWin: "Макс. сніг на вікнах", maxBottom: "Макс. купа знизу",
+        snowmen: "Сніговики", build: "Складати сніговиків", buildHint: "постав меншу кульку на більшу",
+        announce: "Оголошувати рідкісних", announceHint: "банер і конфеті при появі",
+        balls: "Кульки та змітання", ballGrow: "Швидкість росту кульки", ballMax: "Макс. розмір кульки", brush: "Ширина змітання",
+        react: "Реакція сніговиків", r0: "Зносить усіх", r1: "Рідкісні стрибають", r2: "Усі стрибають",
+        reactHint: "Що буде зі сніговиками й кульками, коли їде техніка. Звичайні розсипаються, а в режимі «Рідкісні стрибають» рідкісні й вище перестрибують лезо.",
+        perf: "Продуктивність", save: "Економія ресурсів", saveHint: "менше сніжинок і ефектів, рідші оновлення",
+        actions: "Дії", melt: "Розтопити сніговиків", pop: "Розсипати кульки",
+        reset: "Скидання", resetBtn: "Скинути налаштування", resetSure: "Точно скинути? Натисни ще раз",
+        resetHint: "Повертає значення за замовчуванням. Колекція сніговиків не чіпається.",
+        how: "Як користуватись",
+        h1: "• Води курсором по замету на вікні — змітаєш сніг.",
+        h2: "• Права кнопка на снігу (вікно або низ екрана) — ліпиш кульку. Тримай, щоб росла.",
+        h3: "• Постав меншу кульку на більшу — вийде сніговик, а який саме, вирішує випадок.",
+        h4: "• Лівою кнопкою можна взяти сніговика й перенести куди завгодно.",
+        collection: "Колекція сніговиків", collHint: "Натисни на відкриту картку, щоб викликати цього сніговика.",
+        found: "знайдено", notFound: "ще не знайдено"
+    })
+    readonly property color accent: palette[Math.max(0, Math.min(palette.length - 1, accentIdx))]
 
     FileView {
         path: root.dir + "/config.json"
@@ -69,6 +162,12 @@ Singleton {
             property bool gameMode: true
             property bool saveMode: false
             property bool dance: true
+            property bool interactive: true
+            property real vehicleOpacity: 0.85
+            property real vehicleScale: 0.55
+            property real snowOpacity: 1
+            property int accentIdx: 0
+            property string lang: "auto"
         }
     }
 }

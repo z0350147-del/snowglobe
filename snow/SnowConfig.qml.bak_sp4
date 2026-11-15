@@ -1,0 +1,80 @@
+pragma Singleton
+import QtQuick
+import Quickshell
+import Quickshell.Io
+
+Singleton {
+    id: root
+
+    readonly property string dir: Quickshell.env("HOME") + "/.config/snowfall"
+
+    readonly property int level: adapter.level
+    readonly property bool accumulate: adapter.accumulate
+    readonly property bool melt: adapter.melt
+    readonly property bool bottom: adapter.bottom
+    readonly property bool bottomAuto: adapter.bottomAuto
+    readonly property real bottomOffset: adapter.bottomOffset
+    readonly property real bottomMax: adapter.bottomMax
+    readonly property bool windowSnow: adapter.windowSnow
+    readonly property real windowMax: adapter.windowMax
+    readonly property real growSeconds: adapter.growSeconds
+    readonly property int clearTick: adapter.clearTick
+    readonly property int tractorTick: adapter.tractorTick
+    readonly property real windStrength: adapter.windStrength
+    readonly property bool windGust: adapter.windGust
+    readonly property real brushSize: adapter.brushSize
+    readonly property real ballGrow: adapter.ballGrow
+    readonly property real ballMax: adapter.ballMax
+    readonly property real luck: adapter.luck
+    readonly property bool snowmenOn: adapter.snowmenOn
+    readonly property bool announce: adapter.announce
+    readonly property string foundJson: adapter.foundJson
+    readonly property int tractorMode: adapter.tractorMode
+    readonly property int vehicle: adapter.vehicle
+    readonly property bool paused: adapter.paused
+    readonly property bool gameMode: adapter.gameMode
+    readonly property bool saveMode: adapter.saveMode
+    readonly property bool dance: adapter.dance
+    readonly property bool interactive: adapter.interactive
+    readonly property real vehicleOpacity: adapter.vehicleOpacity
+    readonly property real vehicleScale: adapter.vehicleScale
+
+    FileView {
+        path: root.dir + "/config.json"
+        watchChanges: true
+        onFileChanged: reload()
+        adapter: JsonAdapter {
+            id: adapter
+            property int level: 2
+            property bool accumulate: true
+            property bool melt: false
+            property bool bottom: true
+            property bool bottomAuto: false
+            property real bottomOffset: 0
+            property real bottomMax: 36
+            property bool windowSnow: true
+            property real windowMax: 26
+            property real growSeconds: 60
+            property int clearTick: 0
+            property int tractorTick: 0
+            property real windStrength: 0
+            property bool windGust: false
+            property real brushSize: 40
+            property real ballGrow: 1
+            property real ballMax: 48
+            property real luck: 0
+            property bool snowmenOn: true
+            property bool announce: true
+            property string foundJson: "{}"
+            property int tractorMode: 1
+            property int vehicle: 3
+            property bool paused: false
+            property bool gameMode: true
+            property bool saveMode: false
+            property bool dance: true
+            property bool interactive: true
+            property real vehicleOpacity: 1
+            property real vehicleScale: 0.8
+        }
+    }
+}

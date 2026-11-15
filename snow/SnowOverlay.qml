@@ -50,6 +50,7 @@ Scope {
                     id: hit
                     required property var modelData
                     readonly property var info: snowLayer.strips[modelData] || ({ x: 0, y: 0, w: 1, h: 1 })
+                    visible: SnowConfig.interactive
 
                     screen: sc.modelData
                     color: "transparent"
@@ -104,7 +105,7 @@ Scope {
                     property real fy: 0
 
                     screen: sc.modelData
-                    visible: !!man && !man.melting && !snowLayer.gameActive
+                    visible: SnowConfig.interactive && !!man && !man.melting && !snowLayer.gameActive
                     color: "transparent"
                     exclusionMode: ExclusionMode.Ignore
                     WlrLayershell.layer: WlrLayer.Top
@@ -160,7 +161,7 @@ Scope {
                     readonly property real zs: b ? Math.max(28, b.d + 12) : 28
 
                     screen: sc.modelData
-                    visible: !!b && (bz.dragging || (b.resting && !b.held)) && !snowLayer.gameActive
+                    visible: SnowConfig.interactive && !!b && (bz.dragging || (b.resting && !b.held)) && !snowLayer.gameActive
                     color: "transparent"
                     exclusionMode: ExclusionMode.Ignore
                     WlrLayershell.layer: WlrLayer.Overlay
@@ -211,7 +212,7 @@ Scope {
                 readonly property real hh: holding ? holdH : hhCalc
 
                 screen: sc.modelData
-                visible: ((snowLayer.pileOn && snowLayer.pileAvg > 4) || pileHit.holding) && !snowLayer.gameActive
+                visible: SnowConfig.interactive && ((snowLayer.pileOn && snowLayer.pileAvg > 4) || pileHit.holding) && !snowLayer.gameActive
                 color: "transparent"
                 exclusionMode: ExclusionMode.Ignore
                 WlrLayershell.layer: WlrLayer.Top
