@@ -335,7 +335,14 @@ Item {
     }
     // ---- /snow_patch17 ----
 
+    // кулька, що катається, знімає сніг по своїй ширині (борозна за нею)
+    function takePileFor(gx, dia, dist) {
+        if (pile && typeof pile.takeSnow === "function" && !pile.sweeping)
+            pile.takeSnow(gx - dia * 0.5, gx + dia * 0.5, Math.min(0.5, dist * 0.04));
+    }
+
     function takePile(gx, amt) {
+        if (heldBall && heldBall.rollMode) return;
         if (pile && typeof pile.takeSnow === "function")
             pile.takeSnow(gx - 20, gx + 20, amt);
     }
@@ -365,12 +372,17 @@ Item {
 
     function ballStart(gx, gy) {
         if (heldBall) { heldBall.release(); heldBall = null; }
-        heldBall = ballComp.createObject(root, { host: root, cx: gx, cy: gy, d: 14 });
+        var onPile = pileOn && gy >= groundY - 80;
+        heldBall = ballComp.createObject(root, { host: root, cx: gx, cy: gy, d: 14, rollMode: onPile, targetX: gx });
         if (heldBall) heldBall.splat.connect(root.onBallSplat);
     }
 
     function ballMove(gx, gy) {
         if (!heldBall) return;
+        if (heldBall.rollMode) {
+            heldBall.drag(gx, gy);
+            return;
+        }
         var ddx = gx - heldBall.lastX;
         var ddy = gy - heldBall.lastY;
         var dd = Math.sqrt(ddx * ddx + ddy * ddy);
@@ -413,8 +425,14 @@ Item {
 
     Loader {
         id: musicLoader
-        active: SnowConfig.dance
+        active: SnowConfig.dance || (SnowConfig.garland && SnowConfig.garlandMode === 3)
         source: Qt.resolvedUrl("MusicWatch.qml")
+    }
+
+    Binding {
+        target: BeatEngine
+        property: "playing"
+        value: root.musicPlaying
     }
 
     function checkGame() {
@@ -468,6 +486,9 @@ Item {
     function startSweep(amount) {
         if (anyVehicleRunning()) return;
         pickVehicle();
+        carried = 0;
+        pile.lastPlowX = -1;
+        veh.heapFill = 0;
         veh.start(amount);
     }
 
@@ -816,7 +837,7 @@ Item {
         opacity: SnowConfig.vehicleOpacity
         y: root.groundY - height
         layerWidth: root.width
-        onFinished: pile.reset()
+        onFinished: pile.finishSweep()
     }
 
     Truck {
@@ -827,7 +848,7 @@ Item {
         speed: 220
         y: root.groundY - height
         layerWidth: root.width
-        onFinished: pile.reset()
+        onFinished: pile.finishSweep()
     }
 
     Sleigh {
@@ -836,7 +857,32 @@ Item {
         opacity: SnowConfig.vehicleOpacity
         y: root.groundY - height
         layerWidth: root.width
-        onFinished: pile.reset()
+        onFinished: pile.finishSweep()
+    }
+
+    // ---- реалістичний збір снігу: сніг переходить у купу перед відвалом ----
+    property real carried: 0
+
+    Timer {
+        interval: 33
+        repeat: true
+        running: root.veh.visible && pile.sweeping
+        onTriggered: {
+            var t = pile.plow(root.veh.bladeX);
+            if (t > 0) {
+                root.carried += t;
+                spray.burst(root.veh.bladeX - 2, root.groundY - root.veh.heapH * 0.9, t);
+            }
+            root.veh.heapFill = 1 - Math.exp(-root.carried / Math.max(300, SnowConfig.bottomMax * 220));
+        }
+    }
+
+    SnowSpray {
+        id: spray
+        z: 4
+        anchors.fill: parent
+        groundY: root.groundY
+        lite: root.saving
     }
 
     Item {
@@ -844,5 +890,20 @@ Item {
         anchors.fill: parent
         z: 1
         opacity: SnowConfig.snowOpacity
+    }
+
+    // ---- гірлянди ----
+    readonly property real garlandClock: garlands.clock
+
+    GarlandLayer {
+        id: garlands
+        anchors.fill: parent
+        z: 2
+        mon: root.mon
+        groundY: root.groundY
+        frozen: root.suspended
+        playing: root.musicPlaying
+        lite: root.saving
+        refreshHere: !(root.windowsOn && !root.suspended)
     }
 }

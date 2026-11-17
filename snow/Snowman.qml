@@ -100,6 +100,8 @@ Item {
         } else {
             danceStart.stop();
             danceAnim.stop();
+            hopL.stop();
+            hopR.stop();
             resetAnim.restart();
         }
     }
@@ -107,6 +109,8 @@ Item {
         if (hopping) {
             danceStart.stop();
             danceAnim.stop();
+            hopL.stop();
+            hopR.stop();
             waveL = 0;
             waveR = 0;
             shake = 0;
@@ -332,7 +336,7 @@ Item {
     Timer {
         id: danceStart
         interval: sm.phase
-        onTriggered: { if (sm.dancing && !sm.hopping) danceAnim.restart(); }
+        onTriggered: { if (sm.dancing && !sm.hopping && !sm.beatDriven) danceAnim.restart(); }
     }
 
     SequentialAnimation {
@@ -379,6 +383,70 @@ Item {
         running: sm.dancing && sm.kind === "ninja"
         onTriggered: shurAnim.restart()
     }
+
+    // ---- ритм: стрибок на кожен удар музики ----
+    readonly property bool beatDriven: BeatEngine.active
+    readonly property int hopMs: Math.max(300, Math.min(900, BeatEngine.beatMs))
+    property int beatIdx: 0
+    property real hopK: 1
+
+    onBeatDrivenChanged: {
+        if (beatDriven) danceAnim.stop();
+        else if (dancing && !hopping) danceStart.restart();
+    }
+
+    function beatKick(strength) {
+        if (!dancing || hopping || !beatDriven) return;
+        beatIdx++;
+        if (kind === "king" && beatIdx % 2 === 1) return;
+        hopK = 0.65 + 0.35 * Math.max(0, Math.min(1, strength));
+        if (beatIdx % 2 === 0) {
+            hopR.stop();
+            hopL.restart();
+        } else {
+            hopL.stop();
+            hopR.restart();
+        }
+    }
+
+    Connections {
+        target: BeatEngine
+        enabled: sm.dancing && sm.beatDriven
+        function onBeatCountChanged() { sm.beatKick(BeatEngine.pulse); }
+    }
+
+    SequentialAnimation {
+        id: hopL
+        ParallelAnimation {
+            NumberAnimation { target: sm; property: "jump"; to: -sm.danceH * sm.hopK; duration: sm.hopMs * 0.42; easing.type: Easing.OutQuad }
+            NumberAnimation { target: sm; property: "breath"; to: 1.05; duration: sm.hopMs * 0.42 }
+            NumberAnimation { target: sm; property: "waveL"; to: 40; duration: sm.hopMs * 0.3 }
+            NumberAnimation { target: sm; property: "waveR"; to: 0; duration: sm.hopMs * 0.3 }
+            NumberAnimation { target: sm; property: "shake"; to: 4; duration: sm.hopMs * 0.42 }
+        }
+        ParallelAnimation {
+            NumberAnimation { target: sm; property: "jump"; to: 0; duration: sm.hopMs * 0.48; easing.type: Easing.InQuad }
+            NumberAnimation { target: sm; property: "breath"; to: 0.95; duration: sm.hopMs * 0.48 }
+            NumberAnimation { target: sm; property: "shake"; to: 1.5; duration: sm.hopMs * 0.48 }
+        }
+    }
+
+    SequentialAnimation {
+        id: hopR
+        ParallelAnimation {
+            NumberAnimation { target: sm; property: "jump"; to: -sm.danceH * sm.hopK; duration: sm.hopMs * 0.42; easing.type: Easing.OutQuad }
+            NumberAnimation { target: sm; property: "breath"; to: 1.05; duration: sm.hopMs * 0.42 }
+            NumberAnimation { target: sm; property: "waveL"; to: 0; duration: sm.hopMs * 0.3 }
+            NumberAnimation { target: sm; property: "waveR"; to: 40; duration: sm.hopMs * 0.3 }
+            NumberAnimation { target: sm; property: "shake"; to: -4; duration: sm.hopMs * 0.42 }
+        }
+        ParallelAnimation {
+            NumberAnimation { target: sm; property: "jump"; to: 0; duration: sm.hopMs * 0.48; easing.type: Easing.InQuad }
+            NumberAnimation { target: sm; property: "breath"; to: 0.95; duration: sm.hopMs * 0.48 }
+            NumberAnimation { target: sm; property: "shake"; to: -1.5; duration: sm.hopMs * 0.48 }
+        }
+    }
+
     // ---- /snow_patch20 ----
 
     // ================= timers =================
@@ -1532,5 +1600,26 @@ Item {
                 }
             }
         }
+    }
+
+    // ---- гірлянда на сніговику ----
+    Garland {
+        z: 7
+        visible: SnowConfig.garland && SnowConfig.garlandMan && !sm.preview && !sm.melting
+        caps: false
+        pts: {
+            var r = sm.d1 / 2;
+            var cy = sm.height - r;
+            var out = [];
+            for (var t = 0; t <= 1.0001; t += 0.1)
+                out.push([sm.midX - r * 0.9 + 1.8 * r * Math.min(1, t), cy - r * 0.25 + r * 0.4 * Math.sin(Math.PI * Math.min(1, t))]);
+            return out;
+        }
+        spacing: Math.max(8, Math.round(sm.d1 * 0.21 * SnowConfig.garlandSize))
+        scaleK: Math.max(0.65, Math.min(1.2, sm.d1 / 48))
+        offset: sm.typeId * 3
+        clock: sm.host ? sm.host.garlandClock : 0
+        playing: sm.host ? sm.host.musicPlaying : false
+        lite: sm.host ? sm.host.saving : false
     }
 }

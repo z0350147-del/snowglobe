@@ -25,6 +25,10 @@ Item {
     property real rollDecel: 500
     property real rollDrag: 0.35
     property real magnet: 1500
+    property bool rollMode: false
+    property real targetX: 0
+    property real rvx: 0
+    property real rollT0: 0
 
     signal splat(real gx, real gy, real dia)
 
@@ -50,6 +54,14 @@ Item {
     }
 
     function drag(gx, gy) {
+        if (rollMode) {
+            targetX = gx + offX;
+            lastX = gx;
+            lastY = gy;
+            lastT = Date.now();
+            wd.restart();
+            return;
+        }
         var t = Date.now();
         var dt = Math.max(8, t - lastT) / 1000;
         dvx = dvx * 0.5 + ((gx - lastX) / dt) * 0.5;
@@ -67,6 +79,7 @@ Item {
     function grab(gx, gy) {
         if (held) return;
         phys.stop();
+        rollMode = false;
         held = true;
         resting = false;
         vx = 0;
@@ -88,8 +101,14 @@ Item {
         resting = false;
         bounces = 0;
         var stale = (Date.now() - lastT) > 90;
-        vx = stale ? 0 : Math.max(-1000, Math.min(1000, dvx));
-        vy = stale ? 0 : Math.max(-1000, Math.min(1000, dvy));
+        if (rollMode) {
+            vx = rvx;
+            vy = 0;
+            rollMode = false;
+        } else {
+            vx = stale ? 0 : Math.max(-1000, Math.min(1000, dvx));
+            vy = stale ? 0 : Math.max(-1000, Math.min(1000, dvy));
+        }
         lastT = Date.now();
         phys.start();
     }
@@ -98,6 +117,8 @@ Item {
         lastX = cx;
         lastY = cy;
         lastT = Date.now();
+        rollT0 = Date.now();
+        targetX = cx;
         if (host) host.registerBall(ball);
     }
 
@@ -108,8 +129,47 @@ Item {
     Timer {
         interval: 50
         repeat: true
-        running: ball.held && ball.growing
+        running: ball.held && ball.growing && !ball.rollMode
         onTriggered: ball.d = Math.min(SnowConfig.ballMax, ball.d + 0.9 * SnowConfig.ballGrow)
+    }
+
+    // ---- реалістичне качання: куля їде по землі за курсором, росте від пройденого шляху ----
+    function rollStep() {
+        var L = host;
+        if (!L) return;
+        var now = Date.now();
+        var dt = Math.min(0.033, (now - rollT0) / 1000);
+        rollT0 = now;
+        if (dt <= 0) return;
+        var r = d / 2;
+        var mass = 0.6 + d / 40;
+        var w = Math.sqrt(40 / mass);
+        rvx += ((targetX - cx) * w * w - rvx * 1.8 * w) * dt;
+        rvx = Math.max(-900, Math.min(900, rvx));
+        var dx = rvx * dt;
+        if (Math.abs(targetX - cx) < 1 && Math.abs(rvx) < 4) {
+            rvx = 0;
+            dx = 0;
+        }
+        cx += dx;
+        var dist = Math.abs(dx);
+        rot += dx / Math.max(4, r) * 57.2958;
+        var sy = L.surfaceY(cx, cy + r - 1 - d - 30);
+        cy = sy - r;
+        if (dist > 0.01) {
+            var depth = L.groundY - L.ballFloor(cx);
+            var k = Math.max(0, Math.min(1, depth / 6));
+            d = Math.min(SnowConfig.ballMax, d + dist * 0.13 * SnowConfig.ballGrow * k);
+            L.takePileFor(cx, d, dist);
+        }
+    }
+
+    Timer {
+        id: rollTimer
+        interval: 16
+        repeat: true
+        running: ball.held && ball.rollMode
+        onTriggered: ball.rollStep()
     }
 
     Timer {
@@ -289,5 +349,8 @@ Item {
         }
         Rectangle { x: parent.width * 0.25; y: parent.height * 0.2; width: parent.width * 0.22; height: width; radius: width / 2; color: "#dfeaf7" }
         Rectangle { x: parent.width * 0.58; y: parent.height * 0.55; width: parent.width * 0.18; height: width; radius: width / 2; color: "#dfeaf7" }
+        Rectangle { x: parent.width * 0.12; y: parent.height * 0.58; width: parent.width * 0.14; height: width; radius: width / 2; color: "#e6eff9" }
+        Rectangle { x: parent.width * 0.66; y: parent.height * 0.14; width: parent.width * 0.12; height: width; radius: width / 2; color: "#e6eff9" }
+        Rectangle { x: parent.width * 0.4; y: parent.height * 0.72; width: parent.width * 0.2; height: parent.width * 0.1; radius: height / 2; color: "#cfdff1" }
     }
 }

@@ -27,7 +27,7 @@ Scope {
                 id: win
                 screen: sc.modelData
 
-                visible: SnowConfig.level > 0 && !snowLayer.gameActive
+                visible: (SnowConfig.level > 0 || SnowConfig.garland) && !snowLayer.gameActive
                 color: "transparent"
                 exclusionMode: ExclusionMode.Ignore
                 WlrLayershell.layer: WlrLayer.Top

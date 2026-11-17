@@ -11,8 +11,9 @@ Item {
     readonly property real sc: 0.42
     readonly property real bladeX: x + 8 * sc
     readonly property real load: Math.max(0, Math.min(1, (startX - x) / Math.max(1, layerWidth)))
-    readonly property real heapW: 8 + load * (snowAmount * 1.8 + 24)
-    readonly property real heapH: Math.min(40, 6 + load * (snowAmount * 0.9 + 10))
+    property real heapFill: 0
+    readonly property real heapW: Math.min(150, 8 + heapFill * (40 + SnowConfig.bottomMax * 2.2))
+    readonly property real heapH: Math.min(46, 6 + heapFill * (12 + SnowConfig.bottomMax * 0.8))
     readonly property bool running: visible
 
     signal finished()

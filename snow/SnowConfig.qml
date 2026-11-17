@@ -39,6 +39,25 @@ Singleton {
     readonly property real vehicleOpacity: adapter.vehicleOpacity
     readonly property real vehicleScale: adapter.vehicleScale
     readonly property real snowOpacity: adapter.snowOpacity
+    readonly property bool garland: adapter.garland
+    readonly property bool garlandTop: adapter.garlandTop
+    readonly property bool garlandWin: adapter.garlandWin
+    readonly property bool garlandIce: adapter.garlandIce
+    readonly property bool garlandFrame: adapter.garlandFrame
+    readonly property bool garlandGround: adapter.garlandGround
+    readonly property bool garlandMan: adapter.garlandMan
+    readonly property int garlandMode: adapter.garlandMode
+    readonly property int garlandPalette: adapter.garlandPalette
+    readonly property real garlandBright: adapter.garlandBright
+    readonly property real garlandSpeed: adapter.garlandSpeed
+    readonly property real garlandSize: adapter.garlandSize
+    readonly property var garlandColors: {
+        var gi = Math.max(0, Math.min(3, adapter.garlandPalette));
+        if (gi === 0) return ["#ff4d4d", "#ffb020", "#4cd964", "#3d9bff", "#ff5fa8"];
+        if (gi === 1) return ["#ffd9a0", "#ffc878", "#ffe3b8"];
+        if (gi === 2) return ["#cfe8ff", "#9ccaff", "#ffffff"];
+        return [accent, Qt.lighter(accent, 1.45), Qt.darker(accent, 1.15)];
+    }
     readonly property var palette: ["#7fb4d6", "#8ad4b0", "#e08a9a", "#e0b86a", "#a58be0", "#d0d6dc"]
     readonly property int accentIdx: adapter.accentIdx
     readonly property string lang: adapter.lang
@@ -62,6 +81,17 @@ Singleton {
         vehOpacity: "Vehicle opacity", truckSize: "Truck size",
         theme: "Theme color", language: "Language",
         modes: "Modes",
+        garland: "Christmas lights", garlandOn: "Show lights", garlandOnHint: "string lights around the screen",
+        gTop: "Top of the screen", gTopHint: "swags under the top bar",
+        gWin: "Window tops", gWinHint: "lights on the snow caps",
+        gIce: "Icicle lights", gIceHint: "hanging from window edges",
+        gFrame: "Screen frame", gFrameHint: "one loop around the whole screen",
+        gGround: "On the snow", gGroundHint: "lying along the bottom snow pile",
+        gMan: "On snowmen", gManHint: "a string around each snowman",
+        gMode: "Animation", gm0: "Steady", gm1: "Twinkle", gm2: "Chase", gm3: "Music",
+        gModeHint: "Music: the lights flash on the beat (needs cava; without it they keep a steady 120 BPM), otherwise they glow softly.",
+        gPal: "Colors", gp0: "Multicolor", gp1: "Warm", gp2: "Cool", gp3: "Theme",
+        gBright: "Brightness", gSpeed: "Animation speed", gSize: "Bulb size",
         interactive: "Interactive zones", interactiveHint: "snowballs, snowmen, mouse sweeping",
         dance: "Dance to music", danceHint: "snowmen dance when music plays",
         game: "Game mode", gameHint: "hide snow in games and fullscreen windows",
@@ -102,6 +132,17 @@ Singleton {
         vehOpacity: "Прозорість техніки", truckSize: "Розмір вантажівки",
         theme: "Колір теми", language: "Мова",
         modes: "Режими",
+        garland: "Гірлянди", garlandOn: "Показувати гірлянди", garlandOnHint: "різдвяні вогники по екрану",
+        gTop: "Верх екрана", gTopHint: "дуги під верхньою панеллю",
+        gWin: "Верхні краї вікон", gWinHint: "вогники на снігових шапках",
+        gIce: "Бурульки з вікон", gIceHint: "звисають з країв вікон",
+        gFrame: "Рамка екрана", gFrameHint: "одна петля по всьому екрану",
+        gGround: "На снігу", gGroundHint: "лежать уздовж купи знизу",
+        gMan: "На сніговиках", gManHint: "гірлянда навколо кожного сніговика",
+        gMode: "Анімація", gm0: "Рівно", gm1: "Блимання", gm2: "Хвиля", gm3: "Музика",
+        gModeHint: "Музика: вогники спалахують у такт (потрібен cava; без нього — рівний темп 120 уд./хв), а так світяться м'яко.",
+        gPal: "Кольори", gp0: "Різнокольорові", gp1: "Теплі", gp2: "Холодні", gp3: "Під тему",
+        gBright: "Яскравість", gSpeed: "Швидкість анімації", gSize: "Розмір лампочок",
         interactive: "Інтерактивні зони", interactiveHint: "кульки, сніговики, змітання мишею",
         dance: "Танці під музику", danceHint: "сніговики танцюють, коли грає музика",
         game: "Режим ігор", gameHint: "ховати сніг, коли гра або вікно на весь екран",
@@ -168,6 +209,18 @@ Singleton {
             property real snowOpacity: 1
             property int accentIdx: 0
             property string lang: "auto"
+            property bool garland: true
+            property bool garlandTop: true
+            property bool garlandWin: true
+            property bool garlandIce: false
+            property bool garlandFrame: false
+            property bool garlandGround: false
+            property bool garlandMan: false
+            property int garlandMode: 2
+            property int garlandPalette: 0
+            property real garlandBright: 1
+            property real garlandSpeed: 1
+            property real garlandSize: 1
         }
     }
 }

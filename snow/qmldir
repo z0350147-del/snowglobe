@@ -1,9 +1,13 @@
 singleton SnowConfig 1.0 SnowConfig.qml
+singleton BeatEngine 1.0 BeatEngine.qml
 SnowOverlay 1.0 SnowOverlay.qml
 SnowLayer 1.0 SnowLayer.qml
+Garland 1.0 Garland.qml
+GarlandLayer 1.0 GarlandLayer.qml
 WindowSnow 1.0 WindowSnow.qml
 ShedBurst 1.0 ShedBurst.qml
 BottomPile 1.0 BottomPile.qml
+SnowSpray 1.0 SnowSpray.qml
 Tractor 1.0 Tractor.qml
 Truck 1.0 Truck.qml
 Sleigh 1.0 Sleigh.qml

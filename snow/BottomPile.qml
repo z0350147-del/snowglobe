@@ -12,6 +12,7 @@ Item {
     property real fill: 0
     property bool sweeping: false
     property real sweepX: 0
+    property real lastPlowX: -1
 
     signal overflowed()
 
@@ -41,6 +42,7 @@ Item {
         avg = 0;
         fill = 0;
         sweeping = false;
+        lastPlowX = -1;
         prevSum = -1;
         buildPath();
     }
@@ -75,6 +77,7 @@ Item {
 
     function step() {
         if (hs.length !== nb + 1) reset();
+        if (sweeping) return;
         var n = nb + 1;
         if (!sweeping)
             fill = Math.min(1.5, fill + (0.15 + 0.85 * density) / (Math.max(5, growSeconds) * 8) * 0.25);
@@ -122,7 +125,6 @@ Item {
     // Повертає 0, якщо купи не видно або трактор уже прибрав сніг у цьому місці.
     function heightAt(x) {
         if (avg <= 0.3 || hs.length !== nb + 1) return 0;
-        if (sweeping && x > sweepX) return 0;
         var f = Math.max(0, Math.min(nb - 0.0001, x / binW));
         var i = Math.floor(f);
         var t = f - i;
@@ -159,6 +161,57 @@ Item {
     }
     // ---- /snow_patch15 ----
 
+    // ---- реалістичне прибирання: відвал знімає сніг стовпчик за стовпчиком ----
+    // Викликається, поки техніка їде. bx — позиція леза. Повертає площу знятого снігу (px^2).
+    // За лезом лишається тонка плівка снігу, а не ідеально чиста земля.
+    function plow(bx) {
+        if (hs.length !== nb + 1) return 0;
+        var n = nb + 1;
+        var from = lastPlowX < 0 ? width + binW : lastPlowX;
+        if (bx >= from) return 0;
+        var a = Math.max(0, Math.floor(bx / binW));
+        var b = Math.min(n - 1, Math.ceil(from / binW));
+        var film = Math.min(cap * 0.04, 2.5);
+        var out = hs.slice();
+        var taken = 0;
+        for (var i = a; i <= b; i++) {
+            var r = film * noise[i];
+            if (out[i] > r) {
+                taken += (out[i] - r) * binW;
+                out[i] = r;
+            }
+        }
+        var sum = 0;
+        for (var k = 0; k < n; k++) sum += out[k];
+        lastPlowX = bx;
+        hs = out;
+        avg = sum / n;
+        prevSum = -1;
+        buildPath();
+        return taken;
+    }
+
+    // Техніка проїхала: лишаємо тонку плівку й дозволяємо снігу рости знову.
+    function finishSweep() {
+        if (hs.length !== nb + 1) { reset(); return; }
+        var n = nb + 1;
+        var film = Math.min(cap * 0.04, 2.5);
+        var out = new Array(n);
+        var sum = 0;
+        for (var i = 0; i < n; i++) {
+            out[i] = Math.min(hs[i], film * noise[i]);
+            sum += out[i];
+        }
+        hs = out;
+        avg = sum / n;
+        fill = 0;
+        sweeping = false;
+        lastPlowX = -1;
+        prevSum = -1;
+        buildPath();
+    }
+    // ---- /реалістичне прибирання ----
+
     // відкладена перебудова форми купи після забору снігу (патч 26)
     Timer {
         id: pathTimer
@@ -179,7 +232,7 @@ Item {
         x: 0
         y: 0
         height: pile.height
-        width: pile.sweeping ? Math.max(0, Math.min(pile.width, pile.sweepX)) : pile.width
+        width: pile.width
         clip: true
 
         Shape {

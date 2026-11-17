@@ -25,7 +25,10 @@ PanelWindow {
         windowSnow: true, windowMax: 26, growSeconds: 60, windStrength: 0, windGust: false, brushSize: 40,
         ballGrow: 1, ballMax: 48, luck: 0, snowmenOn: true, announce: true, tractorMode: 1,
         gameMode: true, saveMode: false, dance: true, vehicle: 3,
-        interactive: true, vehicleOpacity: 0.85, vehicleScale: 0.55, snowOpacity: 1, paused: false
+        interactive: true, vehicleOpacity: 0.85, vehicleScale: 0.55, snowOpacity: 1, paused: false,
+        garland: true, garlandTop: true, garlandWin: true, garlandIce: false, garlandFrame: false,
+        garlandGround: false, garlandMan: false, garlandMode: 2, garlandPalette: 0,
+        garlandBright: 1, garlandSpeed: 1, garlandSize: 1
     })
     readonly property var found: {
         try { return JSON.parse(SnowConfig.foundJson) || ({}); } catch (e) { return ({}); }
@@ -826,6 +829,101 @@ PanelWindow {
                         decimals: 2
                         value: SnowConfig.vehicleScale
                         onMoved: function(v) { cfg.set("vehicleScale", v); }
+                    }
+
+                    SecTitle { text: SnowConfig.tr("garland") }
+                    FToggle {
+                        label: SnowConfig.tr("garlandOn")
+                        hint: SnowConfig.tr("garlandOnHint")
+                        checked: SnowConfig.garland
+                        onToggled: function(v) { cfg.set("garland", v); }
+                    }
+                    FToggle {
+                        visible: SnowConfig.garland
+                        label: SnowConfig.tr("gTop")
+                        hint: SnowConfig.tr("gTopHint")
+                        checked: SnowConfig.garlandTop
+                        onToggled: function(v) { cfg.set("garlandTop", v); }
+                    }
+                    FToggle {
+                        visible: SnowConfig.garland
+                        label: SnowConfig.tr("gWin")
+                        hint: SnowConfig.tr("gWinHint")
+                        checked: SnowConfig.garlandWin
+                        onToggled: function(v) { cfg.set("garlandWin", v); }
+                    }
+                    FToggle {
+                        visible: SnowConfig.garland
+                        label: SnowConfig.tr("gIce")
+                        hint: SnowConfig.tr("gIceHint")
+                        checked: SnowConfig.garlandIce
+                        onToggled: function(v) { cfg.set("garlandIce", v); }
+                    }
+                    FToggle {
+                        visible: SnowConfig.garland
+                        label: SnowConfig.tr("gFrame")
+                        hint: SnowConfig.tr("gFrameHint")
+                        checked: SnowConfig.garlandFrame
+                        onToggled: function(v) { cfg.set("garlandFrame", v); }
+                    }
+                    FToggle {
+                        visible: SnowConfig.garland
+                        label: SnowConfig.tr("gGround")
+                        hint: SnowConfig.tr("gGroundHint")
+                        checked: SnowConfig.garlandGround
+                        onToggled: function(v) { cfg.set("garlandGround", v); }
+                    }
+                    FToggle {
+                        visible: SnowConfig.garland
+                        label: SnowConfig.tr("gMan")
+                        hint: SnowConfig.tr("gManHint")
+                        checked: SnowConfig.garlandMan
+                        onToggled: function(v) { cfg.set("garlandMan", v); }
+                    }
+                    Hint { visible: SnowConfig.garland; text: SnowConfig.tr("gMode") }
+                    FPills {
+                        visible: SnowConfig.garland
+                        options: [SnowConfig.tr("gm0"), SnowConfig.tr("gm1"), SnowConfig.tr("gm2"), SnowConfig.tr("gm3")]
+                        current: SnowConfig.garlandMode
+                        onPicked: function(i) { cfg.set("garlandMode", i); }
+                    }
+                    Hint { visible: SnowConfig.garland && SnowConfig.garlandMode === 3; text: SnowConfig.tr("gModeHint") }
+                    Hint { visible: SnowConfig.garland; text: SnowConfig.tr("gPal") }
+                    FPills {
+                        visible: SnowConfig.garland
+                        options: [SnowConfig.tr("gp0"), SnowConfig.tr("gp1"), SnowConfig.tr("gp2"), SnowConfig.tr("gp3")]
+                        current: SnowConfig.garlandPalette
+                        onPicked: function(i) { cfg.set("garlandPalette", i); }
+                    }
+                    FSlider {
+                        visible: SnowConfig.garland
+                        label: SnowConfig.tr("gBright")
+                        from: 0.3
+                        to: 1
+                        step: 0.05
+                        decimals: 2
+                        value: SnowConfig.garlandBright
+                        onMoved: function(v) { cfg.set("garlandBright", v); }
+                    }
+                    FSlider {
+                        visible: SnowConfig.garland
+                        label: SnowConfig.tr("gSpeed")
+                        from: 0.4
+                        to: 2.5
+                        step: 0.05
+                        decimals: 2
+                        value: SnowConfig.garlandSpeed
+                        onMoved: function(v) { cfg.set("garlandSpeed", v); }
+                    }
+                    FSlider {
+                        visible: SnowConfig.garland
+                        label: SnowConfig.tr("gSize")
+                        from: 0.7
+                        to: 1.6
+                        step: 0.05
+                        decimals: 2
+                        value: SnowConfig.garlandSize
+                        onMoved: function(v) { cfg.set("garlandSize", v); }
                     }
 
                     SecTitle { text: SnowConfig.tr("theme") }
